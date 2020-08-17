@@ -1,0 +1,253 @@
+$cardheight: 75px;
+.user-card {
+    z-index: 0  ;
+    transition: 3s;
+    min-height: $cardheight;
+    /* Background / Light */
+    position: relative;
+    background: white;
+    /* 2 dp */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.14), 0px 3px 4px rgba(0, 0, 0, 0.12), 0px 1px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+
+    a {
+        user-select: auto;
+        z-index: 999;
+    }
+    .absence {
+       
+        grid-column: 5/8;
+        top: 0;
+        z-index: 9999;
+    }
+    &__header {
+        position: relative;
+        min-height: $cardheight;
+        padding: 0px;
+        display: flex;
+        padding-right: 16px;
+        &:hover{
+            cursor: pointer;
+           
+        }
+    }
+    &__content{
+        max-height: 500px;
+       
+        padding: 0 10px;
+    }
+    &__expand-button{
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+    &__avatar {
+        position: absolute;
+        display: flex;
+        align-self: flex-start;
+        width: $cardheight;
+        overflow: hidden;
+        min-height: $cardheight;
+        height: 100%;
+        flex: none;
+        border-radius: 5px;
+    }
+    &__status {
+        z-index: 1;
+        width: 5px;
+        border-radius: 4px;
+        min-height: 100%;
+        background: #009688;
+    }
+    &__colleagues{
+        max-height: 275px;
+        overflow: auto;
+    }
+    &__avatar__photo {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        top: 0;
+       
+        background: #f3f3f3;
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+    &__main-info {
+        margin-left: $cardheight;
+        min-height: $cardheight;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+    }
+    &__contacts {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        &_phone{
+            width: 160px;
+        }
+        &_email{
+            flex: 1;
+        }
+    
+    }
+    &__room {
+        flex:1;
+        padding: 10px 16px;
+       
+    }
+    &__name {
+        width: 150px;
+        grid-row: 1/3;
+        b {
+            text-transform: uppercase;
+        }
+    }
+    &__title{
+        width: 200px;
+    }
+    &__position {
+        margin-right: 20px;
+        flex:1;
+        width: 200px;
+    }
+    &__subdivision {
+        text-overflow: ellipsis;
+        display: flex;
+        width: 350px;
+        flex-direction: column;
+        a {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: fit-content;
+            font-weight: 500;
+            &:hover {
+                cursor: pointer;
+                text-decoration: underline;
+            }
+        }
+    }
+    &__expand-btn{
+        position: absolute;
+        right: 0;
+        bottom: 6px;
+        display: flex;
+        justify-content: center;
+    }
+    &__menu-header{
+        width: 100%;
+        padding-left:10px;
+        display: flex;
+        align-items: center;
+        padding-bottom: 5px;
+        padding-top: 5px;
+    }
+    &__main-info__menu {
+        
+        flex: 1;
+        height: 100%;
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        flex-grow: 1;
+        grid-gap: 10px;
+        text-align: left;
+        padding: 0px 16px;
+        
+    }
+    &__address {
+        width: 250px;
+    }
+    .v-expansion-panel-header__icon {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        padding: 6px;
+    }
+}
+
+$smallCard:70px;
+.user-card__small {
+    display: flex;
+    height: $smallCard;
+    margin: 10px 0px;
+    overflow: hidden;
+    .__status {
+        width: 5px;
+        border-radius: 4px;
+        min-height: 150px;
+        background: #009688;
+    }
+    .__avatar {
+        width: $smallCard;
+        height: $smallCard;
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+    .__main-info {
+        display: flex;
+    }
+}
+.hidden{
+    max-height: 0;
+   
+    overflow: hidden;
+}
+.title {
+    margin-top: 20px;
+}
+
+.favorites {
+    position: absolute;
+    right: 0;
+    z-index: 9999;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax);
+  grid-template-rows: 1fr;
+  grid-auto-flow:column dense;
+  gap: 1px 1px;
+  grid-template-areas: "name title subdivison address contacts email";
+}
+
+.name { grid-area: name; }
+
+.title { grid-area: title; }
+
+.subdivison { grid-area: subdivison; }
+
+.address { grid-area: address; }
+
+.contacts { grid-area: contacts; }
+
+.email { grid-area: email; }
+
+@media screen and (max-width: 750px) {
+    .absence {
+        display: flex;
+    }
+    .user-card .user-card__avatar {
+        display: none;
+    }
+    .user-card {
+        margin-bottom: 0px;
+        .user-card__subdivision{
+            display: none;
+        }
+    }
+    .v-expansion-panel-content__wrap {
+        padding: 0;
+    }
+    .user-card .user-card__main-info {
+        margin-left: 0px;
+    }
+}

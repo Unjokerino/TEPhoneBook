@@ -1,0 +1,149 @@
+$primary: #135794;
+.v-main {
+    background: #f6f6f6;
+}
+
+a {
+    color: red;
+    text-decoration: none;
+}
+
+.drawer_icon {
+    display: none;
+}
+
+.mansory {
+    display: flex;
+    flex-flow: wrap;
+    align-content: space-between;
+    height: 580px;
+    justify-content: space-between;
+    &::before,
+    &::after {
+        content: "";
+        flex-basis: 100%;
+        width: 0;
+        order: 2;
+    }
+}
+
+.user {
+    margin-bottom: 2%;
+    /* (100-32*3)/2 */
+    &:nth-child(3n+1) {
+        order: 1;
+    }
+    &:nth-child(3n+2) {
+        order: 2;
+    }
+    &:nth-child(3n) {
+        order: 3;
+    }
+    .one_line {
+        width: 100%;
+    }
+    .two_line {
+        width: 48%;
+    }
+    .three_line {
+        width: 32%;
+    }
+}
+
+div.sticky {
+    position: sticky;
+    top: 55px;
+    z-index: 9;
+    left: 100px;
+    right: 400px;
+}
+
+.scrolled {
+    position: absolute;
+    left: 0;
+    transition: all 0.2s;
+    width: 100%;
+    transition: all 0.2;
+    animation-duration: 1s;
+    animation-name: searchBoxAnim;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+@mixin transform-search-box($rotate) {
+    transform: rotateY($rotate) scale(0.6) translate(600px, 600px);
+}
+
+@keyframes searchBoxAnim {
+    0% {
+        @include transform-search-box(0deg);
+    }
+    25% {
+        @include transform-search-box(90deg);
+    }
+    50% {
+        @include transform-search-box(190deg);
+    }
+    75% {
+        @include transform-search-box(275deg);
+    }
+    100% {
+        @include transform-search-box(360deg);
+    }
+}
+
+.search-container {
+    display: flex;
+    flex-direction: column;
+    &__input-cotnainer {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+    &_search-btn {
+        background: $primary;
+        color: white;
+        height: 100%;
+        width: 120px;
+        border: 4px solid $primary;
+        padding: 16px 8px;
+        &:focus {
+            outline: none;
+        }
+        &:hover {
+            opacity: 0.9;
+            cursor: pointer;
+        }
+    }
+    &_search-input {
+        flex: 1;
+        padding: 16px 8px;
+        background: white;
+        border: 4px solid $primary;
+        &:focus {
+            outline: none;
+        }
+    }
+    &__tpo-select {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        div {
+            width: fit-content;
+        }
+        div:nth-child(2) {
+            .v-input__control {
+                align-items: flex-end;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 750px) {
+    .drawer_icon {
+        display: block;
+    }
+    .menu_item {
+        display: none;
+    }
+}
