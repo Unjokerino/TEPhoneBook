@@ -3,6 +3,7 @@ $cardheight: 75px;
     z-index: 0  ;
     transition: 3s;
     min-height: $cardheight;
+    height: auto;
     /* Background / Light */
     position: relative;
     background: white;
@@ -13,6 +14,9 @@ $cardheight: 75px;
     a {
         user-select: auto;
         z-index: 999;
+        &:hover{
+            text-decoration: underline;;
+        }
     }
     .absence {
        
@@ -32,7 +36,7 @@ $cardheight: 75px;
         }
     }
     &__content{
-        max-height: 500px;
+       
        
         padding: 0 10px;
     }
@@ -175,6 +179,7 @@ $smallCard:70px;
     display: flex;
     height: $smallCard;
     margin: 10px 0px;
+    width: 100%;
     overflow: hidden;
     .__status {
         width: 5px;
@@ -192,6 +197,7 @@ $smallCard:70px;
         }
     }
     .__main-info {
+        width: 100%;
         display: flex;
     }
 }

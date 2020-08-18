@@ -2,7 +2,7 @@
   <v-container>
     <div class="search-container">
       <div id="searchBox" style="background:#f6f6f6;padding: 10px;" class="sticky">
-        <div class="search-container__input-cotnainer ">
+        <div class="search-container__input-cotnainer">
           <input
             @change="searchUser"
             v-model="searchQuery"
@@ -12,10 +12,24 @@
             placeholder="Поиск"
             type="search"
           />
-          <input @click="searchUser" class="search-container_search-btn" type="button" value="Искать" />
+          <input
+            @click="searchUser"
+            class="search-container_search-btn"
+            type="button"
+            value="Искать"
+          />
         </div>
         <div class="search-container__tpo-select">
-          <v-select class="align-center my-3" outlined return-object item-text="title" item-value="id" v-model="dep" dense :items="deps" />
+          <v-select
+            class="align-center my-3"
+            outlined
+            return-object
+            item-text="title"
+            item-value="id"
+            v-model="dep"
+            dense
+            :items="deps"
+          />
           <div class="d-flex align-center">
             <v-icon
               style="height:fit-content"
@@ -28,16 +42,17 @@
           </div>
         </div>
       </div>
-      <div v-if="showLoader" class="d-flex justify-center align-items-center" >
-          <v-progress-circular  color="primary" indeterminate size="64"></v-progress-circular>
 
+      <div v-if="showLoader" class="d-flex justify-center align-items-center">
+        <v-progress-circular color="primary" indeterminate size="64"></v-progress-circular>
       </div>
+
       <div v-else class="masonry-wrapper">
         <div class="masonry" :style="'columns:' + serachRow.title">
           <div v-for="(user,index) in users" :key="index" class="masonry-item">
+           
             <div class="masonry-content">
-              
-               <UserCard
+              <UserCard
                 :favorite="favorites.find(favorite => favorite === user.id) && true"
                 :key="user.id"
                 :user="user"
@@ -45,6 +60,9 @@
             </div>
           </div>
         </div>
+      </div>
+      <div class="text-center" v-if="showNothingFinded">
+        Ничего не найдено :с
       </div>
     </div>
   </v-container>
@@ -54,8 +72,10 @@
 import "../css/index.css";
 import "../css/mansory.css";
 import UserCard from "./UserCard";
-import userListTest from "../assets/userListTest.json";
-import 'whatwg-fetch'
+//import userListTest from "../assets/userListTest.json";
+import testDeps from "../assets/testDeps.json";
+import testFavorites from "../assets/testFavorites.json";
+import "whatwg-fetch";
 export default {
   name: "HomeScreen",
   components: {
@@ -89,27 +109,24 @@ export default {
     },
   },
   mounted() {
-    this.getMainData()
-    
-    document.addEventListener('scroll', () => { 
-      const searchBox = document.querySelector('#searchBox')
+    this.getMainData();
 
-      if(searchBox.offsetTop > 12){
-        searchBox.classList.add('scrolled')
-      }else{
-        searchBox.classList.remove('scrolled')
+    document.addEventListener("scroll", () => {
+      const searchBox = document.querySelector("#searchBox");
+
+      if (searchBox.offsetTop > 12) {
+        searchBox.classList.add("scrolled");
+      } else {
+        searchBox.classList.remove("scrolled");
       }
-    })
-
+    });
   },
   data: () => ({
     params: "",
-    panel: [1, 2, 3],
-    userInfo:{},
+    showNothingFinded: false,
+    userInfo: {},
     dep: { title: "Искать везде", id: undefined },
-    deps: [
-      { title: "Искать везде", id: undefined },
-    ],
+    deps: [{ title: "Искать везде", id: undefined }],
     serachRows: [
       { title: "3", value: 4, icon: "mdi-grid", size: 30 },
       { title: "2", value: 6, icon: "mdi-view-grid-outline", size: 32 },
@@ -121,27 +138,35 @@ export default {
       : { title: "1", value: 12 },
     users: [],
     showLoader: false,
+    favorites: []
   }),
 
   methods: {
-    async getMainData(){
+    async getMainData() {
+      this.showLoader = true
       await this.getDepsList();
       await this.getUserInfo();
       await this.getUsers();
+      this.showLoader = false 
     },
-    onScroll(e){
-      console.log(e)
+    onScroll(e) {
+      console.log(e);
     },
     searchUser() {
       if (this.searchQuery) {
-        this.showLoader = true
+        this.showLoader = true;
         fetch(
           `http://trs-msu-test/phonebook/users/getUsers.php?${this.params}&search=${this.searchQuery}`
         ).then((response) => {
           response
             .json()
             .then((response_json) => {
-              this.users = response_json;
+              if(response_json.length > 0){
+                 this.users = response_json;
+              }else{
+                this.showNothingFinded = true
+              }
+             
               this.showLoader = false;
             })
             .catch((this.showLoader = false));
@@ -150,46 +175,68 @@ export default {
         this.getUsers();
       }
     },
-    async getDepsList(){
-       let response =  await fetch('http://trs-msu-test/phonebook/users/getDepsList.php', {
-        method: 'GET',
-      })
-      let deps = await response.json()
-      this.deps = [...this.deps,...deps]
+    async getDepsList() {
+      try {
+        let response = await fetch(
+          "http://trs-msu-test/phonebook/users/getDepsList.php",
+          {
+            method: "GET",
+          }
+        );
+        let deps = await response.json();
+        this.deps = [this.deps, ...deps];
+      } catch (error) {
+        console.error(error);
+        this.deps = [...this.deps, ...testDeps];
+      }
     },
 
-    async getUserInfo(){
-      let response =  await fetch('http://trs-msu-test/phonebook/users/getInfo.php', {
-        method: 'GET',
-      })
-      let json = await response.json()
-      let user = json[0]
-      let dep = this.deps.find(dep => 
-        dep.id == user.departament_id
-      )
-      if(dep){
-        this.dep = dep
+    async getUserInfo() {
+      try {
+        let response = await fetch(
+          "http://trs-msu-test/phonebook/users/getInfo.php",
+          {
+            method: "GET",
+          }
+        );
+        let json = await response.json();
+        let user = json[0];
+        let dep = this.deps.find((dep) => dep.id == user.departament_id);
+        if (dep) {
+          this.dep = dep;
+        }
+        this.userInfo = user;
+        return user;
+      } catch (error) {
+        console.error(error)
       }
-      this.userInfo = user
-      return user
     },
-    async getFavorites(){
-     const response =  await fetch('http://trs-msu-test/phonebook/users/favorites.php')
-     const json = await response.json()
-     this.favorites = json
+    async getFavorites() {
+      try {
+        const response = await fetch(
+          "http://trs-msu-test/phonebook/users/favorites.php"
+        );
+        const json = await response.json();
+        this.favorites = json;
+      } catch (error) {
+        console.error(error);
+      }
     },
     async getUsers() {
-      const fd = new FormData()
-      await this.getFavorites()
-      fd.append('users_id', JSON.stringify(this.favorites))
-      if(this.dep.id){
-        fd.append('departament_id', this.dep.id)
-        fd.append('param', 1)
+      const fd = new FormData();
+      await this.getFavorites();
+      fd.append("users_id", JSON.stringify(this.favorites));
+      if (this.dep.id) {
+        fd.append("departament_id", this.dep.id);
+        fd.append("param", 1);
       }
 
       this.users = [];
       this.showLoader = true;
-      fetch(`http://trs-msu-test/phonebook/users/getUsers.php?`,{method:'POST', body:fd})
+      fetch(`http://trs-msu-test/phonebook/users/getUsers.php?`, {
+        method: "POST",
+        body: fd,
+      })
         .then((response) => {
           response
             .json()
@@ -200,8 +247,8 @@ export default {
             .catch((this.showLoader = false));
         })
         .catch((e) => {
-          console.log(e);
-          this.users = userListTest;
+          console.log(123, e);
+          this.users = testFavorites;
           this.showLoader = false;
         });
     },

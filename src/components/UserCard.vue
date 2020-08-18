@@ -46,13 +46,13 @@
             >{{user.subdivision[0].name}}</span>
           </div>
           <div v-show="user.address" class="user-card__address text-subtitle-2">
-            <b v-if="user.address">
+            <span v-if="user.address">
               Офис:
               <router-link to>
                 <span class="text-transform-capitilize" v-html="user.address" />
                 <span>{{user.address && ','}} {{user.room}}</span>
               </router-link>
-            </b>
+            </span>
           </div>
           <div v-show="user.phone || user.phone_internal " class="user-card__contacts_phone text-subtitle-2">
             <div class="d-flex flex-column">
@@ -85,7 +85,7 @@
     <v-expand-transition>
       <div v-show="expand" class="user-card__content">
         <p class="text-h6">Руководитель:</p>
-
+ 
         <v-skeleton-loader
           :loading="!chiefLoaded"
           type="list-item-avatar-two-line@1"
@@ -100,9 +100,9 @@
           :loading="!colleaguesLoaded"
           type="list-item-avatar-two-line@3"
         >
-          <transition-group class="user-card__colleagues">
+          <div class="user-card__colleagues">
               <UserSmallCard :transition="transition" v-for="colleague in colleagues" :key="colleague.id" :user="colleague" />
-          </transition-group>
+          </div>
         </v-skeleton-loader>
         <v-card-actions>
           <v-btn @click.stop="dialog = true" text color="primary">Подробная информация</v-btn>
@@ -211,7 +211,7 @@
 import "../css/userCard.css";
 import UserSmallCard from "./UserSmallCard";
 import "../css/mansory.css";
-//import userListTest from "../assets/userListTest.json";
+import userListTest from "../assets/userListTest.json";
 export default {
   name: "UserCard",
   props: {
@@ -314,14 +314,16 @@ export default {
     async getDepartment(e) {
       if (e.target.nodeName === "DIV") this.changeExpandState();
       if (!this.hasGotten) {
-        await this.getChief();
+         
+        this.chiefs = await this.getChief();
+        console.log(this.chiefs)
+      
         this.chiefLoaded = true;
         this.colleagues = await this.getColleagues();
         this.hasGotten = true;
       }
     },
     async getChief() {
-      if (+this.user.chief > 0) {
         try {
           let response = await fetch(
             `http://trs-msu-test/phonebook/users/getChief.php?departament_sap=${this.user.departament_sap}`
@@ -339,9 +341,8 @@ export default {
         } catch (error) {
           console.warn(error)
           this.chiefLoaded = true;
-          return [];
+          return [userListTest[0], userListTest[1]];
         }
-      }
     },
     async getColleagues() {
       try {
@@ -358,7 +359,7 @@ export default {
       } catch (error) {
         console.warn(error)
         this.colleaguesLoaded = true;
-        return [];
+        return userListTest;
       }
     },
     test(e) {
