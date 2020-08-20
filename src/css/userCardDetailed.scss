@@ -1,0 +1,13 @@
+.detailed-card {
+    margin: 0;
+    &__avatar {
+        margin: 0;
+        height: 600px;
+        width: fit-content;
+        img,
+        .v-image {
+            object-fit: cover;
+            height: 100%;
+        }
+    }
+}

@@ -1,8 +1,4 @@
 $primary: #135794;
-.v-main {
-    background: #f6f6f6;
-}
-
 a {
     color: red;
     text-decoration: none;
@@ -50,26 +46,27 @@ a {
     }
 }
 
-div.sticky {
+v-card.sticky {
     position: sticky;
     top: 55px;
     z-index: 9;
     left: 100px;
     right: 400px;
 }
-.v-text-field__details{
+
+.v-text-field__details {
     display: none;
 }
+
 .scrolled {
     position: absolute;
     left: 0;
-    background: white;
-    top:55px;
+    background: inherit;
+    top: 55px;
     right: 0;
     box-shadow: 0px 8px 20px 0px #e2e2e2;
     transition: all 0.2s;
     width: 100%;
-    
     // animation-duration: 1s;
     // animation-name: searchBoxAnim;
     // animation-timing-function: linear;
@@ -100,6 +97,7 @@ div.sticky {
 
 .search-container {
     display: flex;
+    color: white;
     flex-direction: column;
     &__input-cotnainer {
         display: flex;
@@ -111,7 +109,6 @@ div.sticky {
         color: white;
         height: 100%;
         width: 120px;
-        
         padding: 20px 8px;
         &:focus {
             outline: none;

@@ -1,26 +1,28 @@
 <template>
   <v-container>
     <div class="search-container">
-      <div class="search-container__input-cotnainer">
-        <input class="search-container_search-input" placeholder="Поиск" type="search" />
-        <input class="search-container_search-btn" type="button" value="Искать" />
+      <div class="search-container__input-cotnainer ">
+        <input class=" search-container_search-input" v-model="searchQuery" @change="search" placeholder="Поиск" type="search" />
+        <div color="black" v-if="found_ids.length">{{found_ids.length}}</div>
+        <input class="search-container_search-btn " @click="search" type="button" value="Искать" />
       </div>
       <v-select
         flat
-        class="search-container__tpo-select"
+        outlined
+        class="search-container__tpo-select my-3"
         value="Другие сети"
         :items="['Тюменские распределительные сети', 'Другие сети']"
       />
     </div>
-    <v-card>
+    <v-card color="card">
      
       <v-row class="pa-4" justify="space-between">
         <v-col cols="12">
           <v-treeview
-
-            :active.sync="active"
+            :open-all="openAll"
+            :active="active"
             :items="items"
-            :load-children="fetchDeps"
+            :load-children="(item) => fetchDeps(item,0,2)"
             :open.sync="open"
             :item-text="''"
             
@@ -47,20 +49,16 @@
 <script>
 import "../css/index.css";
 import UserCard from './UserSmallCard'
-const avatars = [
-  "?accessoriesType=Blank&avatarStyle=Circle&clotheColor=PastelGreen&clotheType=ShirtScoopNeck&eyeType=Wink&eyebrowType=UnibrowNatural&facialHairColor=Black&facialHairType=MoustacheMagnum&hairColor=Platinum&mouthType=Concerned&skinColor=Tanned&topType=Turban",
-  "?accessoriesType=Sunglasses&avatarStyle=Circle&clotheColor=Gray02&clotheType=ShirtScoopNeck&eyeType=EyeRoll&eyebrowType=RaisedExcited&facialHairColor=Red&facialHairType=BeardMagestic&hairColor=Red&hatColor=White&mouthType=Twinkle&skinColor=DarkBrown&topType=LongHairBun",
-  "?accessoriesType=Prescription02&avatarStyle=Circle&clotheColor=Black&clotheType=ShirtVNeck&eyeType=Surprised&eyebrowType=Angry&facialHairColor=Blonde&facialHairType=Blank&hairColor=Blonde&hatColor=PastelOrange&mouthType=Smile&skinColor=Black&topType=LongHairNotTooLong",
-  "?accessoriesType=Round&avatarStyle=Circle&clotheColor=PastelOrange&clotheType=Overall&eyeType=Close&eyebrowType=AngryNatural&facialHairColor=Blonde&facialHairType=Blank&graphicType=Pizza&hairColor=Black&hatColor=PastelBlue&mouthType=Serious&skinColor=Light&topType=LongHairBigHair",
-  "?accessoriesType=Kurt&avatarStyle=Circle&clotheColor=Gray01&clotheType=BlazerShirt&eyeType=Surprised&eyebrowType=Default&facialHairColor=Red&facialHairType=Blank&graphicType=Selena&hairColor=Red&hatColor=Blue02&mouthType=Twinkle&skinColor=Pale&topType=LongHairCurly"
-];
-const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 export default {
   data: () => ({
     active: [],
     avatar: null,
     open: [],
+    searchQuery:'',
     users: [],
+    found_ids:[],
+    openAll:false,
     initial_items: [],
     department_id: undefined
   }),
@@ -84,13 +82,8 @@ export default {
     }
   },
   mounted() {
-    console.log(this.$route);
     let department_id = this.$route.params.department_id;
-    if (department_id) {
-      this.getPath(department_id);
-    } else {
-      this.fetchDeps();
-    }
+    department_id ? this.getPath(department_id) : this.fetchDeps();
   },
   watch: {
     $route(val) {
@@ -105,59 +98,95 @@ export default {
 
   methods: {
     async getPath(department_id) {
+        await this.fetchDeps(null)
         let url = "http://trs-msu-test/phonebook/users";
-        fetch(
+        let response = await fetch(
           `${url}/getPath.php?id=${department_id}`
-        ).then(async response => {
-          let json = await response.json();
-
-          json.forEach((element, index) => {
-            if (index !== json.length - 1) {
-              this.open.push(json[index + 1].id)
-              json[index + 1].children = [element];
-            } else {
-              json[index].children = [];
-            }
-          });
-          let root = json[json.length - 2]
-          let result = await fetch(
-            `${url}/getUsers.php?sort=title_rank&departament_sap=${json[0].departament_sap}`
-          )
-          let json_users = await result.json()
-          this.users = [...this.users, ...json_users];
-          json[0].children = this.users;
-          this.initial_items = [root];
-        });
-      
+        )
+        let json = await response.json();
+        const fetchAndOpen = async (i) => {
+          const item = json[i]
+          item.children = []
+          await this.fetchDeps(item, i, 1)
+          if(i > 0){
+            await fetchAndOpen(i - 1)
+          }
+        }
+        await fetchAndOpen(json.length - 1)
     },
-    async fetchUsers(item) {
-      await pause(1500);
 
-      return fetch("https://jsonplaceholder.typicode.com/users")
-        .then(res => res.json())
-        .then(json => item.children.push(...json))
-        .catch(err => console.warn(err));
-    },
-    async fetchDeps(item) {
+    async fetchDepsAuto(item,is_not_last){
+      console.log('auto')
       let url = "http://trs-msu-test/phonebook/users";
-      if (item) {
+         
           let response = await fetch(`${url}/getDeps.php?parent_id=${item.id}`);
           let json = await response.json();
-
-          let result = await fetch(
-            `${url}/getUsers.php?sort=title_rank&departament_sap=${item.departament_sap}`
-          )
-         
+          
           json.forEach(elem => {
             if (!elem.children) {
               elem.children = [];
             }
             item.children.push({ ...elem });
           });
+          this.open.push(item.id) 
+          if(!is_not_last){
+            this.active.push(item.id)
+          }
+          
+          let result = await fetch(
+            `${url}/getUsers.php?sort=title_rank&departament_sap=${item.departament_sap}`
+          )
           let json_users = await result.json()
-          this.users = [...this.users, ...json_users];
-          item.children = [...json_users, ...item.children];
+          
+          this.users = [...this.users];
+          
+          
+          if(json.length){
+            item.children = [...json_users, ...item.children];
+          }else{
+            item.children = [...json_users];
+          }
+          return item;
+          
+    },
 
+    async fetchDeps(item,is_not_last,clickType=0) {
+      console.log(clickType)
+      let url = "http://trs-msu-test/phonebook/users";
+      if (item) {
+         
+          let response = await fetch(`${url}/getDeps.php?parent_id=${item.id}`);
+          let json = await response.json();
+          
+          json.forEach(elem => {
+            if (!elem.children) {
+              elem.children = [];
+            }
+            item.children.push({ ...elem });
+          });
+          if(!is_not_last){
+            this.active.push(item.id)
+          }
+        
+          if(!this.open.includes(item.id)){
+            this.open.push(item.id) 
+          }
+
+          
+          
+          let result = await fetch(
+            `${url}/getUsers.php?sort=title_rank&departament_sap=${item.departament_sap}`
+          )
+          let json_users = await result.json()
+          
+          this.users = [...this.users];
+          
+          
+          if(json.length){
+            item.children = [...json_users, ...item.children];
+          }else{
+            item.children = [...json_users];
+          }
           return item;
         
       } else {
@@ -179,8 +208,38 @@ export default {
           .catch(err => console.warn(err));
       }
     },
-    randomAvatar() {
-      this.avatar = avatars[Math.floor(Math.random() * avatars.length)];
+    async search(){
+      if (this.searchQuery) {
+        try {
+          let response = await fetch(`http://trs-msu-test/phonebook/users/searchTree.php?search=${this.searchQuery}`)
+          let json = await response.json()
+          this.initial_items = json
+          const openNode = (elem) =>{
+            
+           let children = elem.children
+           this.open.push(elem.id)
+           children.forEach(child =>{
+            this.open.push(child.id)
+
+            if(child.children){
+              openNode(child)
+            }else{
+              this.found_ids.push(child.id)
+            }
+           })
+          
+          }
+          json.forEach(elem =>{
+            openNode(elem)
+          })
+       
+          this.openAll = true
+        } catch (error) {
+          console.warn(error)
+          this.fetchDeps()
+        }
+
+      }
     }
   }
 };

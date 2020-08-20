@@ -1,7 +1,8 @@
-<template>
+<template >
+
   <v-container>
     <div class="search-container">
-      <div id="searchBox" style="background:#f6f6f6;padding: 10px;" class="sticky">
+      <v-card color="background" flat id="searchBox"  class="sticky">
         <div class="search-container__input-cotnainer">
           <input
             @change="searchUser"
@@ -23,6 +24,7 @@
           <v-select
             class="align-center my-3"
             outlined
+            
             return-object
             item-text="title"
             item-value="id"
@@ -41,7 +43,7 @@
             >{{row.icon}}</v-icon>
           </div>
         </div>
-      </div>
+      </v-card>
 
       <div v-if="showLoader" class="d-flex justify-center align-items-center">
         <v-progress-circular color="primary" indeterminate size="64"></v-progress-circular>
@@ -61,7 +63,7 @@
           </div>
         </div>
       </div>
-      <div class="text-center" v-if="showNothingFinded">
+      <div class="text-center " v-show="showNothingFinded">
         Ничего не найдено :с
       </div>
     </div>
@@ -93,6 +95,7 @@ export default {
     },
   },
   computed: {
+  
     cardWidth() {
       let row = this.serachRow;
       switch (row.title) {
@@ -163,7 +166,9 @@ export default {
             .then((response_json) => {
               if(response_json.length > 0){
                  this.users = response_json;
+                 this.showNothingFinded = false
               }else{
+                this.users = []
                 this.showNothingFinded = true
               }
              
@@ -184,7 +189,7 @@ export default {
           }
         );
         let deps = await response.json();
-        this.deps = [this.deps, ...deps];
+        this.deps = [...this.deps, ...deps];
       } catch (error) {
         console.error(error);
         this.deps = [...this.deps, ...testDeps];

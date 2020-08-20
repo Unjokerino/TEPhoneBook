@@ -1,0 +1,19 @@
+.detailed-card {
+  margin: 0;
+}
+
+.detailed-card__avatar {
+  margin: 0;
+  height: 600px;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+}
+
+.detailed-card__avatar img,
+.detailed-card__avatar .v-image {
+  -o-object-fit: cover;
+     object-fit: cover;
+  height: 100%;
+}
+/*# sourceMappingURL=userCardDetailed.css.map */

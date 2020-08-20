@@ -1,5 +1,5 @@
-<template>
-  <div :id="`user_${user.id}`" key="1" class="user-card">
+<template >
+  <v-card color="card" :id="`user_${user.id}`" key="1" class="user-card">
     <div class="favorites">
       <v-btn
         icon
@@ -84,10 +84,11 @@
     </div>
     <v-expand-transition>
       <div v-show="expand" class="user-card__content">
-        <p class="text-h6">Руководитель:</p>
+        <p class="text-h6 mt-2">Руководитель:</p>
  
         <v-skeleton-loader
           :loading="!chiefLoaded"
+           color="card"
           type="list-item-avatar-two-line@1"
         > 
         <transition-group>
@@ -95,13 +96,14 @@
         </transition-group>
         </v-skeleton-loader>
 
-        <p class="text-h6">Коллеги:</p>
+        <p class="text-h6 mt-2">Коллеги:</p>
         <v-skeleton-loader
           :loading="!colleaguesLoaded"
+          color="card"
           type="list-item-avatar-two-line@3"
         >
           <div class="user-card__colleagues">
-              <UserSmallCard :transition="transition" v-for="colleague in colleagues" :key="colleague.id" :user="colleague" />
+              <UserSmallCard :transition="transition" v-for="colleague in colleagues" :absence="absence" :key="colleague.id" :user="colleague" />
           </div>
         </v-skeleton-loader>
         <v-card-actions>
@@ -109,109 +111,27 @@
         </v-card-actions>
       </div>
     </v-expand-transition>
-    <v-dialog v-model="dialog" >
+    <v-dialog v-model="dialog" max-width="1400">
       <v-card class="mx-auto">
-        
-        <v-img src="../assets/avatar.jpg" height="300px" dark>
-          <v-row class="fill-height">
-            <v-card-title>
-              <v-btn dark icon>
-                <v-icon>mdi-chevron-left</v-icon>
-              </v-btn>
 
-              <v-spacer></v-spacer>
+        <UserDetailedCard :absence="absence" :chiefs="chiefs" :colleagues="colleagues" :user="user"/>
+        <v-divider></v-divider>
 
-              <v-btn dark icon class="mr-4">
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-
-              <v-btn dark icon>
-                <v-icon>mdi-dots-vertical</v-icon>
-              </v-btn>
-            </v-card-title>
-
-            <v-spacer></v-spacer>
-
-            <v-card-title class="white--text  pt-12">
-              <div class="display-1 pl-12 pt-12">{{user.name}}</div>
-            </v-card-title>
-          </v-row>
-        </v-img>
-
-        <v-list two-line>
-          <v-list-item >
-            <v-list-item-icon>
-              <v-icon color="indigo">mdi-phone</v-icon>
-            </v-list-item-icon>
-
-            <v-list-item-content>
-              <v-list-item-title>(650) 555-1234</v-list-item-title>
-              <v-list-item-subtitle>Mobile</v-list-item-subtitle>
-            </v-list-item-content>
-
-            <v-list-item-icon>
-              <v-icon>mdi-message-text</v-icon>
-            </v-list-item-icon>
-          </v-list-item>
-
-          <v-list-item >
-            <v-list-item-action></v-list-item-action>
-
-            <v-list-item-content>
-              <v-list-item-title>(323) 555-6789</v-list-item-title>
-              <v-list-item-subtitle>Work</v-list-item-subtitle>
-            </v-list-item-content>
-
-            <v-list-item-icon>
-              <v-icon>mdi-message-text</v-icon>
-            </v-list-item-icon>
-          </v-list-item>
-
-          <v-divider inset></v-divider>
-
-          <v-list-item >
-            <v-list-item-icon>
-              <v-icon color="indigo">mdi-email</v-icon>
-            </v-list-item-icon>
-
-            <v-list-item-content>
-              <v-list-item-title>aliconnors@example.com</v-list-item-title>
-              <v-list-item-subtitle>Personal</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-
-          <v-list-item >
-            <v-list-item-action></v-list-item-action>
-
-            <v-list-item-content>
-              <v-list-item-title>ali_connors@example.com</v-list-item-title>
-              <v-list-item-subtitle>Work</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-
-          <v-divider inset></v-divider>
-
-          <v-list-item >
-            <v-list-item-icon>
-              <v-icon color="indigo">mdi-map-marker</v-icon>
-            </v-list-item-icon>
-
-            <v-list-item-content>
-              <v-list-item-title>1400 Main Street</v-list-item-title>
-              <v-list-item-subtitle>Orlando, FL 79938</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="dialog = false" text>Закрыть</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+  </v-card>
 </template>
 
 <script>
 import "../css/userCard.css";
 import UserSmallCard from "./UserSmallCard";
 import "../css/mansory.css";
-import userListTest from "../assets/userListTest.json";
+//import userListTest from "../assets/userListTest.json";
+import UserDetailedCard from './UserDetailedCard'
 export default {
   name: "UserCard",
   props: {
@@ -220,6 +140,7 @@ export default {
   },
   components: {
     UserSmallCard,
+    UserDetailedCard
   },
   data: () => ({
     transition: "scale-transition",
@@ -268,18 +189,16 @@ export default {
           dateFinish = `${dateFinish[1]}.${dateFinish[0]}.${dateFinish[2]}`;
           dateFinish = new Date(dateFinish);
           let today = new Date();
-          let three_days = today.setDate(today.getDate() + 3)
-          
-          if (dateStart < today && dateFinish >= today) {
-            result = `${element.NameAbsence} до ${element.DateFinishAbsence}`;
+          let temptoday = new Date()
+          let three_days = new Date(temptoday.setDate(temptoday.getDate() + 3))
+          if (dateStart < today && dateFinish >= today){
+            result = `${element.NameAbsence} до ${element.DateFinishAbsence}`;     
+          }            
+          if (dateStart < three_days && dateFinish >= today){
+            result = ` ${element.NameAbsence} c ${element.DateStartAbsence} до ${element.DateFinishAbsence}`;
+            
           }
 
-          if (dateStart < today && dateFinish >= today) {
-            result = `${element.NameAbsence} до ${element.DateFinishAbsence}`;
-          }else if(dateStart < three_days && dateFinish >= today){
-            result = `${element.NameAbsence} c ${element.DateStartAbsence} до ${element.DateFinishAbsence}`;
-
-          }
         });
       }
       this.absence = result;
@@ -316,8 +235,6 @@ export default {
       if (!this.hasGotten) {
          
         this.chiefs = await this.getChief();
-        console.log(this.chiefs)
-      
         this.chiefLoaded = true;
         this.colleagues = await this.getColleagues();
         this.hasGotten = true;
@@ -326,7 +243,7 @@ export default {
     async getChief() {
         try {
           let response = await fetch(
-            `http://trs-msu-test/phonebook/users/getChief.php?departament_sap=${this.user.departament_sap}`
+            `http://trs-msu-test/phonebook/users/getChief.php?user_id=${this.user.id}`
           );
           let json = await response.json();
           let chiefs = [];
@@ -341,13 +258,15 @@ export default {
         } catch (error) {
           console.warn(error)
           this.chiefLoaded = true;
-          return [userListTest[0], userListTest[1]];
+          return []
+          //TEST
+          //return [userListTest[0], userListTest[1]];
         }
     },
     async getColleagues() {
       try {
         let response = await fetch(
-          `http://trs-msu-test/phonebook/users/getUsers.php?departament_sap=${this.user.departament_sap}&sort=title_rank`
+          `http://trs-msu-test/phonebook/users/getColleagues.php?user_id=${this.user.id}&sort=title_rank`
         );
         let json = await response.json();
         this.colleaguesLoaded = true;
@@ -359,7 +278,8 @@ export default {
       } catch (error) {
         console.warn(error)
         this.colleaguesLoaded = true;
-        return userListTest;
+        return []
+        //return userListTest;
       }
     },
     test(e) {
